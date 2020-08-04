@@ -5,17 +5,31 @@ This sample application uses the [`@arcgis/webpack-plugin`](https://github.com/e
 [Video](https://youtu.be/gTFZgLYegDY)
 
 ## install dependencies
+
 ```
 npm install
 ```
 
 ## start dev server
+
 ```
 npm start
 ```
 
+## generate a build
 
-## generate a build 
 ```
 npm run build
+```
+
+## material-ui/core
+
+```
+npm install @material-ui/core@4.11.0
+```
+
+## material-ui/icons
+
+```
+npm install @material-ui/icons@4.9.1
 ```
