@@ -278,6 +278,13 @@ class Maps extends Component {
       view: view,
     });
     view.ui.add(measurementWidget, "top-right");
+    view.on("click", function (event) {
+      //console.log(event);
+      let longitudes = event.mapPoint.longitude;
+      let latitudes = event.mapPoint.latitude;
+      console.log(longitudes);
+      console.log(latitudes);
+    });
   }
   render() {
     return (
