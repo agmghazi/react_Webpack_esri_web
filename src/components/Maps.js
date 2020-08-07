@@ -1,8 +1,7 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/main.scss";
 import Map from "esri/Map";
 import mapview from "esri/views/MapView";
-import FeatureLayer from "esri/layers/FeatureLayer";
 import MapImageLayer from "esri/layers/MapImageLayer";
 import Sketch from "esri/widgets/Sketch";
 import GraphicsLayer from "esri/layers/GraphicsLayer";
@@ -16,86 +15,13 @@ import ScaleBar from "esri/widgets/ScaleBar";
 import Bookmarks from "esri/widgets/Bookmarks";
 import CoordinateConversion from "esri/widgets/CoordinateConversion";
 
-class Maps extends Component {
-  componentDidMount() {
+export default function Maps() {
+  useEffect(() => {
     document.body.style.padding = "0";
     document.body.style.margin = "0";
-
     const layer = new GraphicsLayer();
-
-    var nasemLineSymbol = {
-      type: "simple",
-      symbol: {
-        type: "simple-line",
-        cap: "round",
-        color: [0, 0, 255, 0.3],
-        width: "100px",
-        style: "solid",
-      },
-    };
-
-    let template = {
-      // autocasts as new PopupTemplate()
-      title: "Trail run",
-      content: "asas",
-      // actions: [measureThisAction],
-    };
-
-    var Building_LinesLabel = {
-      symbol: {
-        type: "text",
-        color: "black",
-        haloColor: "white",
-        haloSize: "1.5px",
-        font: {
-          size: "13px",
-          family: "Noto Sans",
-          style: "italic",
-          weight: "normal",
-        },
-      },
-      labelPlacement: "above-center",
-      labelExpressionInfo: {
-        expression: "$feature.MATERIAL_E",
-      },
-    };
-
-    const Building_point = new FeatureLayer({
-      url:
-        "http://localhost:6080/arcgis/rest/services/DataWorker/FeatureServer/1",
-    });
-    const survyPoint = new FeatureLayer({
-      url:
-        "http://localhost:6080/arcgis/rest/services/DataWorker/FeatureServer/2",
-    });
-    const Building_Lines = new FeatureLayer({
-      url:
-        "http://localhost:6080/arcgis/rest/services/DataWorker/FeatureServer/3",
-      outFields: ["*"],
-      popupEnabled: true,
-      id: "NamseLineLayer",
-      renderer: nasemLineSymbol,
-      labelingInfo: [Building_LinesLabel],
-      outFields: ["MATERIAL_E", "FEEDSOURCE"],
-      popupTemplate: template,
-    });
-    const Building = new FeatureLayer({
-      url:
-        "http://localhost:6080/arcgis/rest/services/DataWorker/FeatureServer/4",
-    });
-    const Building_polygon = new FeatureLayer({
-      url:
-        "http://localhost:6080/arcgis/rest/services/DataWorker/FeatureServer/5",
-    });
     let map1 = new Map({
       basemap: "streets",
-      // layers: [
-      // Building_point,
-      // survyPoint,
-      // Building_Lines,
-      // Building,
-      // Building_polygon,
-      // ],
       layers: [layer],
     });
     console.log(map1);
@@ -112,7 +38,6 @@ class Maps extends Component {
       ],
     });
     map1.add(MapImage2);
-
     const MapImage1 = new MapImageLayer({
       url: "http://localhost:6080/arcgis/rest/services/DataWorker/MapServer",
       sublayers: [
@@ -165,7 +90,6 @@ class Maps extends Component {
       ],
     });
     map1.add(MapImage5);
-
     let view = new mapview({
       container: "viewDiv",
       map: map1,
@@ -181,33 +105,25 @@ class Maps extends Component {
       });
     });
 
-    var measurementWidget = new AreaMeasurement2D({
-      view: view,
-    });
-    view.ui.add(measurementWidget, "top-right");
-
-    var sketch = new Sketch({
+    const sketch = new Sketch({
       layer: layer,
       view: view,
       creationMode: "update",
     });
 
-    var bgExpand = new Expand({
+    const sketchExpand = new Expand({
       expandIconClass: "esri-icon-sketch-rectangle",
+      label: "أدوات الرسم",
       view: view,
       content: sketch,
+      mode: "floating",
     });
 
-    view.ui.add(bgExpand, "top-right");
-
-    var compass = new Compass({
+    const compass = new Compass({
       view: view,
     });
 
-    // adds the compass to the top left corner of the MapView
-    view.ui.add(compass, "top-left");
-
-    var basemapGallery = new BasemapGallery({
+    const basemapGallery = new BasemapGallery({
       view: view,
     });
 
@@ -215,49 +131,29 @@ class Maps extends Component {
       view: view,
       content: basemapGallery,
       expanded: false,
+      label: "الخرائط",
     });
-    // Add the widget to the top-right corner of the view
-    view.ui.add(basemapExpand, "top-right");
 
-    var homeWidget = new Home({
+    const homeWidget = new Home({
       view: view,
     });
 
-    // adds the home widget to the top left corner of the MapView
-    view.ui.add(homeWidget, "top-left");
-
-    var scaleBar = new ScaleBar({
+    const scaleBar = new ScaleBar({
       view: view,
       unit: "metric",
-    });
-    // Add widget to the bottom left corner of the view
-    view.ui.add(scaleBar, {
-      position: "bottom-left",
     });
 
     const bookmarks = new Bookmarks({
       view: view,
       // allows bookmarks to be added, edited, or deleted
       editingEnabled: true,
-      bookmarkCreationOptions: {
-        takeScreenshot: true,
-        captureExtent: false,
-        screenshotSettings: {
-          width: 100,
-          height: 100,
-        },
-      },
+      bookmarks: [],
     });
-
-    const bkExpands = new Expand({
+    const BookmarksExpands = new Expand({
       view: view,
       content: bookmarks,
       expanded: false,
     });
-
-    // Add the widget to the top-right corner of the view
-    view.ui.add(bkExpands, "top-right");
-
     // bonus - how many bookmarks in the webmap?
     MapImage2.when(function () {
       if (MapImage2.bookmarks && MapImage2.bookmarks.length) {
@@ -266,44 +162,120 @@ class Maps extends Component {
         console.log("No bookmarks in this webmap.");
       }
     });
-
-    var ccWidget = new CoordinateConversion({
+    const CoordinateWidget = new CoordinateConversion({
       view: view,
     });
+    const CoordinateExpand = new Expand({
+      expandIconClass: "esri-icon-tracking",
+      label: "الاحداثيات",
+      view: view,
+      content: CoordinateWidget,
+      mode: "floating",
+    });
 
-    // Adds widget in the bottom left corner of the view
-    view.ui.add(ccWidget, "bottom-left");
-
-    var measurementWidget = new DistanceMeasurement2D({
+    const AreameasurementWidget = new AreaMeasurement2D({
       view: view,
     });
-    view.ui.add(measurementWidget, "top-right");
+    const AreameasurementExpand = new Expand({
+      expandIconClass: "esri-icon-measure-area",
+      label: "قياس مساحات",
+      view: view,
+      content: AreameasurementWidget,
+      mode: "floating",
+    });
+
+    const DistanceWidget = new DistanceMeasurement2D({
+      view: view,
+    });
+    const DistanceExpand = new Expand({
+      expandIconClass: "esri-icon-measure-line",
+      label: "قياس مسافات",
+      view: view,
+      content: DistanceWidget,
+      mode: "floating",
+    });
     view.on("click", function (event) {
       //console.log(event);
       let longitudes = event.mapPoint.longitude;
       let latitudes = event.mapPoint.latitude;
       console.log(longitudes);
       console.log(latitudes);
+      console.log(convertToDms(latitudes, false));
     });
-  }
-  render() {
-    return (
-      <div>
-        <div
-          id="viewDiv"
-          style={{
-            height: "100%",
-            width: "100%",
-            padding: "0",
-            margin: "0",
-            position: "absolute",
-          }}
-        >
-          <div id="basemapGalleryDiv"></div>
-        </div>
+    view.ui.add([
+      {
+        component: DistanceExpand,
+        position: "top-left",
+        index: 5,
+      },
+      {
+        component: AreameasurementExpand,
+        position: "top-left",
+        index: 6,
+      },
+      {
+        component: sketchExpand,
+        position: "top-left",
+        index: 5,
+      },
+      {
+        component: compass,
+        position: "top-left",
+        index: 4,
+      },
+      {
+        component: basemapExpand,
+        position: "top-left",
+        index: 3,
+      },
+      {
+        component: homeWidget,
+        position: "top-left",
+        index: 3,
+      },
+      {
+        component: scaleBar,
+        position: "bottom-left",
+        index: 2,
+      },
+      {
+        component: BookmarksExpands,
+        position: "top-left",
+        index: 2,
+      },
+      {
+        component: CoordinateExpand,
+        position: "bottom-right",
+        index: 2,
+      },
+    ]);
+  });
+  return (
+    <div>
+      <div
+        id="viewDiv"
+        style={{
+          height: "100%",
+          width: "100%",
+          padding: "0",
+          margin: "0",
+          position: "absolute",
+        }}
+      >
+        <div id="basemapGalleryDiv"></div>
       </div>
-    );
-  }
+    </div>
+  );
 }
+function convertToDms(dd, isLng) {
+  let dir = dd < 0 ? (isLng ? "W" : "S") : isLng ? "E" : "N";
 
-export default Maps;
+  let absDd = Math.abs(dd);
+  let deg = absDd | 0;
+  let frac = absDd - deg;
+  let min = (frac * 60) | 0;
+  let sec = frac * 3600 - min * 60;
+  // Round it to 2 decimal points.
+  sec = Math.round(sec * 100) / 100;
+  return deg + "°" + min + "'" + sec + '"' + dir;
+}

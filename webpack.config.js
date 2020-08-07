@@ -1,6 +1,7 @@
 const ArcGISPlugin = require("@arcgis/webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 const path = require("path");
 const webpack = require("webpack");
@@ -62,6 +63,7 @@ module.exports = {
   },
 
   plugins: [
+    new FaviconsWebpackPlugin("./public/favicon.ico"), // svg works too!
     new ArcGISPlugin({
       useDefaultAssetLoaders: false,
     }),
