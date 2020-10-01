@@ -33,3 +33,16 @@ npm install @material-ui/core@4.11.0
 ```
 npm install @material-ui/icons@4.9.1
 ```
+
+## for Contact
+
+``
+agmghazi@hotmail.com
+``
+``
+https://www.facebook.com/agmghazi/
+``
+``
+https://www.linkedin.com/in/agmghazi/
+``
+
